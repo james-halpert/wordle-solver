@@ -3,6 +3,8 @@ from tkinter import messagebox
 import nltk
 from nltk.corpus import words
 
+nltk.download('words')  # Ensure the words corpus is downloaded
+
 class WordleSolver:
     def __init__(self, master):
         self.master = master
@@ -26,11 +28,19 @@ class WordleSolver:
         for i in range(num_boxes):
             entry = tk.Entry(self.master, width=3, validate="key", validatecommand=(self.master.register(self.validate_entry), '%P'))
             entry.grid(row=row, column=i * 2 + 2)
+            entry.bind('<KeyRelease>', self.handle_key_release)
             entry_boxes.append(entry)
         return entry_boxes
 
     def validate_entry(self, text):
         return text == "" or (text.isalpha() and len(text) == 1)
+
+    def handle_key_release(self, event):
+        entry_widget = event.widget
+        if len(entry_widget.get()) == 1:
+            next_widget = entry_widget.tk_focusNext()
+            next_widget.focus_set()
+
 
 
     def update_candidate_words(self):
@@ -73,10 +83,13 @@ class WordleSolver:
 
 
     def display_candidates(self):
-        if not self.candidate_words:
+        sorted_candidates = sorted(self.candidate_words)
+        
+        if not sorted_candidates:
             messagebox.showinfo("No Solutions", "There are no remaining possible words.")
         else:
-            messagebox.showinfo("Possible Words", f"Remaining possible words: {', '.join(self.candidate_words)}")
+            messagebox.showinfo("Possible Words", f"Remaining possible words: {', '.join(sorted_candidates)}")
+
 
     def submit_feedback(self):
         self.update_candidate_words()
