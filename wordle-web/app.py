@@ -61,6 +61,5 @@ def wordle_solver():
 
     return render_template("index.html", result=result, green_letters=green_letters, yellow_letters=yellow_letters, grey_letters=grey_letters)
 
-
 if __name__ == "__main__":
-    app.run(port=99)
+    app.run(host="0.0.0.0", port=99)
