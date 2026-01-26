@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Solver</title>
+</head>
+<body>
+    <h1>Wordle Solver</h1>
+    <form method="POST">
+        <h2>Green Letters</h2>
+        {% for i in range(5) %}
+            <input type="text" name="green{{ i }}" maxlength="1" size="1" value="{{ green_letters[i] if green_letters[i] else '' }}">
+        {% endfor %}
+        
+        <h2>Yellow Letters</h2>
+        {% for i in range(5) %}
+            <input type="text" name="yellow{{ i }}" maxlength="1" size="1" value="{{ yellow_letters[i] if yellow_letters[i] else '' }}">
+        {% endfor %}
+        
+        <h2>Grey Letters</h2>
+        <input type="text" name="grey" value="{{ grey_letters if grey_letters else '' }}">
+        
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+    
+    {% if result is not none %}
+        <h2>Possible Words</h2>
+        <ul>
+            {% for word in result %}
+                <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wordle Helper</title>
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,0.06);
+      --card2: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --grey: #94a3b8;
+
+      --input-bg: rgba(255,255,255,0.07);
+      --focus: rgba(56,189,248,0.55);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(34,197,94,0.15), transparent 55%),
+        radial-gradient(1000px 600px at 80% 10%, rgba(245,158,11,0.12), transparent 55%),
+        radial-gradient(900px 600px at 50% 100%, rgba(56,189,248,0.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .wrap{
+      width: min(980px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+
+    .header{
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 6px;
+    }
+    .title{
+      font-size: clamp(22px, 2.4vw, 30px);
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      margin: 0;
+    }
+    .subtitle{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.04));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-inner{
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .section{
+      display: grid;
+      gap: 10px;
+    }
+
+    .section-title{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-title h2{
+      font-size: 14px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .hint{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .grid5{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .box{
+      display: grid;
+      gap: 8px;
+    }
+
+    label{
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .badge{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .b-green{ background: var(--green); }
+    .b-yellow{ background: var(--yellow); }
+    .b-grey{ background: var(--grey); }
+
+    input[type="text"]{
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 18px;
+      padding: 14px 14px;
+      outline: none;
+      transition: 120ms ease;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(56,189,248,0.75);
+      box-shadow: 0 0 0 4px rgba(56,189,248,0.15);
+    }
+
+    .letter{
+      text-transform: lowercase;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 14px 0;
+    }
+
+    .controls{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 6px;
+    }
+
+    button{
+      border: 1px solid var(--border);
+      background: var(--card2);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+    button:hover{ transform: translateY(-1px); }
+    button:active{ transform: translateY(0px); }
+
+    .primary{
+      border-color: rgba(34,197,94,0.35);
+      background: linear-gradient(180deg, rgba(34,197,94,0.20), rgba(34,197,94,0.10));
+    }
+
+    .secondary{
+      border-color: rgba(148,163,184,0.25);
+      background: linear-gradient(180deg, rgba(148,163,184,0.12), rgba(148,163,184,0.07));
+    }
+
+    .result-card{
+      display: grid;
+      gap: 10px;
+      padding: 16px 18px 18px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.10);
+    }
+
+    .result-header{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .result-header h3{
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+    .count{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .results{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+      max-height: 340px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .word{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 10px 12px;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 1px;
+      user-select: text;
+    }
+
+    .footer{
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    @media (max-width: 560px){
+      .grid5{ gap: 8px; }
+      input[type="text"]{ padding: 12px; }
+      .letter{ padding: 12px 0; font-size: 17px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <header class="header">
+      <div>
+        <h1 class="title">Wordle Helper</h1>
+        <p class="subtitle">Type what you know. I’ll filter the 5-letter candidates.</p>
+      </div>
+    </header>
+
+    <section class="card">
+      <form class="card-inner" method="POST" autocomplete="off">
+        <div class="section">
+          <div class="section-title">
+            <h2>Green letters (correct spot)</h2>
+            <div class="hint">Leave blank if unknown</div>
+          </div>
+
+          <div class="grid5">
+            {% for i in range(5) %}
+            <div class="box">
+              <label for="green{{i}}"><span class="badge b-green"></span>Pos {{ i+1 }}</label>
+              <input
+                class="letter"
+                id="green{{i}}"
+                name="green{{i}}"
+                type="text"
+                inputmode="text"
+                maxlength="1"
+                value="{{ green_letters[i] }}"
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Yellow letters (wrong spot)</h2>
+            <div class="hint">Letter is in the word, but not here</div>
+          </div>
+
+          <div class="grid5">
+            {% for i in range(5) %}
+            <div class="box">
+              <label for="yellow{{i}}"><span class="badge b-yellow"></span>Pos {{ i+1 }}</label>
+              <input
+                class="letter"
+                id="yellow{{i}}"
+                name="yellow{{i}}"
+                type="text"
+                inputmode="text"
+                maxlength="1"
+                value="{{ yellow_letters[i] }}"
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Gray letters (not in word)</h2>
+            <div class="hint">You can paste multiple letters</div>
+          </div>
+
+          <div class="box">
+            <label for="grey"><span class="badge b-grey"></span>Excluded letters</label>
+            <input
+              id="grey"
+              name="grey"
+              type="text"
+              placeholder="e.g. aertn"
+              value="{{ grey_letters }}"
+            />
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="secondary" type="button" id="btnClear">Clear</button>
+          <button class="primary" type="submit">Filter words</button>
+        </div>
+      </form>
+
+      {% if result is not none %}
+      <div class="result-card">
+        <div class="result-header">
+          <h3>Results</h3>
+          <div class="count">
+            {{ result|length }} candidate{{ '' if result|length == 1 else 's' }}
+          </div>
+        </div>
+
+        {% if result|length == 0 %}
+          <div class="hint">No matches. You might have a conflict (like a grey letter that is also green/yellow).</div>
+        {% else %}
+          <div class="results">
+            {% for w in result %}
+              <div class="word">{{ w }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </section>
+
+    <div class="footer">Tip: hit Tab to jump across boxes. Only one letter per box.</div>
+  </main>
+
+  <script>
+    // Single-letter boxes: force a-z and auto-advance.
+    const letterInputs = [...document.querySelectorAll('input.letter')];
+
+    function sanitizeLetter(v){
+      v = (v || "").toLowerCase();
+      const m = v.match(/[a-z]/);
+      return m ? m[0] : "";
+    }
+
+    letterInputs.forEach((inp, idx) => {
+      inp.addEventListener("input", (e) => {
+        const clean = sanitizeLetter(inp.value);
+        inp.value = clean;
+
+        if (clean && idx < letterInputs.length - 1) {
+          letterInputs[idx + 1].focus();
+          letterInputs[idx + 1].select?.();
+        }
+      });
+
+      inp.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !inp.value && idx > 0) {
+          letterInputs[idx - 1].focus();
+        }
+      });
+    });
+
+    // Clear button: wipe inputs and submit nothing.
+    document.getElementById("btnClear").addEventListener("click", () => {
+      document.querySelectorAll("input").forEach(i => i.value = "");
+      letterInputs[0]?.focus();
+    });
+  </script>
+</body>
+</html>
